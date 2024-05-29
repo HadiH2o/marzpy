@@ -28,15 +28,13 @@ class Node:
 
 
 class NodeMethods:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, session) -> None:
+        self.session = session
 
-    async def add_node(self, token: dict, node: Node):
+    async def add_node(self, node: Node):
         """add new node.
 
         Parameters:
-            token (``dict``): Authorization token
-
             node (``api.Node``): node object
 
         Returns:
@@ -44,30 +42,26 @@ class NodeMethods:
         """
         return Node(
             **await send_request(
-                endpoint="node", token=token, method="post", data=node.__dict__
+                endpoint="node", token=self.session.token, method="post", data=node.__dict__
             )
         )
 
-    async def get_node_by_id(self, token: dict, id: int):
+    async def get_node_by_id(self, node_id: int):
         """get exist node from id.
 
         Parameters:
-            id (``int``): id of node
-
-            token (``dict``): Authorization token
+            node_id (``int``): id of node
 
         Returns:
             `~object`: information of new node
         """
-        return Node(**await send_request(endpoint=f"node/{id}", token=token, method="get"))
+        return Node(**await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="get"))
 
-    async def modify_node_by_id(self, token: dict, id: int, node: object):
+    async def modify_node_by_id(self, node_id: int, node: object):
         """edit exist node from id.
 
         Parameters:
-            id (``int``): id of node
-
-            token (``dict``): Authorization token
+            node_id (``int``): id of node
 
             node (``api.Node``): node object
 
@@ -75,78 +69,65 @@ class NodeMethods:
             `~object`: information of new node
         """
         request = await send_request(
-            endpoint=f"node/{id}", token=token, method="put", data=node.__dict__
+            endpoint=f"node/{node_id}", token=self.session.token, method="put", data=node.__dict__
         )
         return Node(**request)
 
-    async def delete_node(self, token: dict, id: int):
+    async def delete_node(self, node_id: int):
         """delete node from id.
 
         Parameters:
-            id (``int``): id of node
-
-            token (``dict``): Authorization token
+            node_id (``int``): id of node
 
         Returns:
             `~str`: success
         """
-        await send_request(endpoint=f"node/{id}", token=token, method="delete")
+        await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="delete")
         return "success"
 
-    async def get_all_nodes(self, token: dict):
+    async def get_all_nodes(self):
         """get all nodes.
-
-        Parameters:
-            token (``dict``): Authorization token
 
         Returns:
             `~list of objects`: [Node]
         """
-        request = await send_request(endpoint="nodes", token=token, method="get")
+        request = await send_request(endpoint="nodes", token=self.session.token, method="get")
         node_list = [Node()]
         for node in request:
             node_list.append(Node(**node))
         del node_list[0]
         return node_list
 
-    async def reconnect_node(self, token: dict, id: int):
+    async def reconnect_node(self, node_id: int):
         """reconnect from id.
 
         Parameters:
-            id (``int``): id of node
-
-            token (``dict``): Authorization token
+            node_id (``int``): id of node
 
         Returns:
             `~str`: success
         """
         request = await send_request(
-            endpoint=f"node/{id}/reconnect", token=token, method="post"
+            endpoint=f"node/{node_id}/reconnect", token=self.session.token, method="post"
         )
 
         return "success"
 
-    async def get_nodes_usage(self, token: dict):
+    async def get_nodes_usage(self):
         """get all nodes usage.
-
-        Parameters:
-            token (``dict``): Authorization token
 
         Returns:
             `~dict`: "usage" : []
         """
-        request = await send_request(endpoint="nodes/usage", token=token, method="get")
+        request = await send_request(endpoint="nodes/usage", token=self.session.token, method="get")
         return request["usages"]
 
-    async def get_nodes_certificate(self, token: dict):
+    async def get_nodes_certificate(self):
         """get nodes settings (certificate).
-
-        Parameters:
-            token (``dict``): Authorization token
 
         Returns:
             `~str`: 'certificate'
         """
 
-        request = await send_request(endpoint="node/settings", token=token, method="get")
+        request = await send_request(endpoint="node/settings", token=self.session.token, method="get")
         return request["certificate"]

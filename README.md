@@ -15,14 +15,16 @@ requirements : ```aiohttp```
 # How To Use
 
 ```python
-from marzpy import Marzban
+from marzpy import Marzban, Session
 import asyncio
 
 
 async def main():
-    panel = Marzban("username", "password", "https://example.com")
-    token = await panel.get_token()
-    # await await panel.anyfunction(token)
+    session = Session("username", "password", "https://example.com")
+    await session.start_session()
+
+    panel = Marzban(session)
+    # await await panel.anyfunction()
 
 
 asyncio.run(main())
@@ -87,18 +89,20 @@ asyncio.run(main())
 
 ```python
 
-from marzpy import Marzban
+from marzpy import Marzban, Session
 
-panel = Marzban("username", "password", "https://example.com")
+session = Session("username", "password", "https://example.com")
+my_token = await session.start_session()
 
-mytoken = await panel.get_token()
+panel = Marzban(session)
+my_token = await panel.get_token(panel_address, username, password)
 
 ```
 
 ### Get Current admin
 
 ```python
-admin = await panel.get_current_admin(token=mytoken)
+admin = await panel.get_current_admin()
 print(admin)  # output: {'username': 'admin', 'is_sudo': True}
 ```
 
@@ -106,7 +110,7 @@ print(admin)  # output: {'username': 'admin', 'is_sudo': True}
 
 ```python
 admin = Admin(username='username', is_sudo=True, password='password')
-result = await panel.create_admin(token=mytoken, admin=admin)
+result = await panel.create_admin(admin=admin)
 print(result)  # output: success
 ```
 
@@ -115,7 +119,7 @@ print(result)  # output: success
 ```python
 target_admin = "test"
 admin = Admin(username=target_admin, is_sudo=True, password='password')
-result = await panel.modify_admin(token=mytoken, username=target_admin, admin=admin)
+result = await panel.modify_admin(username=target_admin, admin=admin)
 print(result)  # output: success
 ```
 
@@ -123,14 +127,14 @@ print(result)  # output: success
 
 ```python
 target_admin = "test"
-result = await panel.delete_admin(token=mytoken, username=target_admin)
+result = await panel.delete_admin(username=target_admin)
 print(result)  # output: success
 ```
 
 ### Get All Admins
 
 ```python
-result = await panel.get_all_admins(token=mytoken)
+result = await panel.get_all_admins()
 print(result)
 # output: [{'username': 'test', 'is_sudo': True}, {'username': 'test1', 'is_sudo': False}]
 ```
@@ -154,21 +158,21 @@ print(result)  # output: User information (usage,links,inbounds,....)
 ### Get System Stats
 
 ```python
-result = await panel.get_system_stats(token=mytoken)
+result = await panel.get_system_stats()
 print(result)  # output: system stats Memory & CPU usage ...
 ```
 
 ### Get Inbounds
 
 ```python
-result = await panel.get_inbounds(token=mytoken)
+result = await panel.get_inbounds()
 print(result)  # output: list of inbounds
 ```
 
 ### Get Hosts
 
 ```python
-result = await panel.get_hosts(token=mytoken)
+result = await panel.get_hosts()
 print(result)  # output: list of hosts
 ```
 
@@ -190,14 +194,14 @@ hosts = {
     ]
 }
 # **Backup first**
-result = await panel.modify_hosts(token=mytoken, data=hosts)
+result = await panel.modify_hosts(data=hosts)
 print(result)  # output: hosts
 ```
 
 ### Get Core Stats
 
 ```python
-result = await panel.get_xray_core(token=mytoken)
+result = await panel.get_xray_core()
 print(result)
 # output: {'version': '1.8.1', 'started': True, 'logs_websocket': '/api/core/logs'}
 ```
@@ -205,7 +209,7 @@ print(result)
 ### Restart Core
 
 ```python
-result = await panel.restart_xray_core(token=mytoken)
+result = await panel.restart_xray_core()
 print(result)
 # output: success
 ```
@@ -213,7 +217,7 @@ print(result)
 ### Get Core Config
 
 ```python
-result = await panel.get_xray_config(token=mytoken)
+result = await panel.get_xray_config()
 print(result)  # output: your xray core config
 ```
 
@@ -221,7 +225,7 @@ print(result)  # output: your xray core config
 
 ```python
 new_config = {"your config"}
-result = await panel.modify_xray_config(token=mytoken, config=new_config)
+result = await panel.modify_xray_config(config=new_config)
 print(result)  # output: success
 ```
 
@@ -241,7 +245,7 @@ user = User(
     data_limit=0,
     data_limit_reset_strategy="no_reset",
 )
-result = await panel.add_user(token=token, user=user)  # return new User object
+result = await panel.add_user(user=user)  # return new User object
 
 print(result.username)
 # -> Mewhrzad, #user.proxies, #user.inbounds, #user.expire, #user.data_limit, #userdata_limit_reset_strategy, #user.status, #user.used_traffic, #user.lifetime_used_traffic, #user.created_at, #user.links, #user.subscription_url, #user.excluded_inbounds
@@ -250,7 +254,7 @@ print(result.username)
 ### Get User
 
 ```python
-result = await panel.get_user(token=mytoken, user_username="Mewhrzad")  # return User object
+result = await panel.get_user(user_username="Mewhrzad")  # return User object
 print(result.subscription_url)
 ```
 
@@ -269,35 +273,35 @@ new_user = User(
     data_limit_reset_strategy="no_reset",
     status="active",
 )
-result = await panel.modify_user(token=mytoken, user_username="Mewhrzad", user=new_user)
+result = await panel.modify_user(user_username="Mewhrzad", user=new_user)
 print(result.subscription_url)  # output: modified user object
 ```
 
 ### Remove User
 
 ```python
-result = await panel.delete_user(token=mytoken, user_username="test")
+result = await panel.delete_user(user_username="test")
 print(result)  # output: success
 ```
 
 ### Reset User Data Usage
 
 ```python
-result = await panel.reset_user_traffic(token=mytoken, user_username="test")
+result = await panel.reset_user_traffic(user_username="test")
 print(result)  # output: success
 ```
 
 ### Reset All Users Data Usage
 
 ```python
-result = await panel.reset_all_users_traffic(token=mytoken)
+result = await panel.reset_all_users_traffic()
 print(result)  # output: success
 ```
 
 ### Get All Users
 
 ```python
-result = await panel.get_all_users(token=mytoken)  # return list of users
+result = await panel.get_all_users()  # return list of users
 for user in result:
     print(user.username) 
 ```
@@ -305,7 +309,7 @@ for user in result:
 ### Get User Usage
 
 ```python
-result = await panel.get_user_usage(token=mytoken, user_username="mewhrzad")
+result = await panel.get_user_usage(user_username="mewhrzad")
 print(result)
 # output: [{'node_id': None, 'node_name': 'MTN', 'used_traffic': 0}, 
 # {'node_id': 1, 'node_name': 'MCI', 'used_traffic': 0}]
@@ -314,7 +318,7 @@ print(result)
 ### Get All User Templates
 
 ```python
-result = await panel.get_all_templates(token=mytoken)  # return template list object
+result = await panel.get_all_templates()  # return template list object
 for template in result:
     print(template.name)
 ```
@@ -332,7 +336,7 @@ temp = Template(
     username_prefix=None,
     username_suffix=None,
 )
-result = await panel.add_template(token=mytoken, template=temp)  # return new Template object
+result = await panel.add_template(template=temp)  # return new Template object
 print(result.name)  # output: new_template
 ```
 
@@ -340,7 +344,7 @@ print(result.name)  # output: new_template
 
 ```python
 template_id = 11
-result = await panel.get_template_by_id(token=mytoken, id=template_id)  # return Template object
+result = await panel.get_template_by_id(template_id=template_id)  # return Template object
 print(result.name)  # output: new_template
 ```
 
@@ -357,14 +361,14 @@ temp = Template(
     username_prefix=None,
     username_suffix=None,
 )
-result = await panel.modify_template_by_id(token=mytoken, id=1, template=temp)  # return Modified Template object
+result = await panel.modify_template_by_id(template_id=1, template=temp)  # return Modified Template object
 print(result.name)  # output: new_template2
 ```
 
 ### Remove User Template
 
 ```python
-result = await panel.delete_template_by_id(token=mytoken, id=1)
+result = await panel.delete_template_by_id(template_id=1)
 print(result)  # output: success
 ```
 
@@ -385,14 +389,14 @@ my_node = Node(
     message="string",
 )
 
-result = await panel.add_node(token=mytoken, node=my_node)  # return new Node object
+result = await panel.add_node(node=my_node)  # return new Node object
 print(result.address)
 ```
 
 ### Get Node
 
 ```python
-result = await panel.get_node_by_id(token=mytoken, id=1)  # return exist Node object
+result = await panel.get_node_by_id(node_id=1)  # return exist Node object
 print(result.address)  # output: address of node 1
 ```
 
@@ -413,21 +417,21 @@ my_node = Node(
     message="string",
 )
 
-result = await panel.modify_node_by_id(token=mytoken, id=1, node=my_node)  # return modified Node object
+result = await panel.modify_node_by_id(node_id=1, node=my_node)  # return modified Node object
 print(result.address)  # output:test.example.com
 ```
 
 ### Remove Node
 
 ```python
-result = await panel.delete_node(token=mytoken, id=1)
+result = await panel.delete_node(node_id=1)
 print(result)  # output: success
 ```
 
 ### Get All Nodes
 
 ```python
-result = await panel.get_all_nodes(token=mytoken)  # return List of Node object
+result = await panel.get_all_nodes()  # return List of Node object
 for node in result:
     print(node.address)
 ```
@@ -435,14 +439,14 @@ for node in result:
 ### Reconenct Node
 
 ```python
-result = await panel.reconnect_node(token=mytoken, id=1)
+result = await panel.reconnect_node(node_id=1)
 print(result)  # output: success
 ```
 
 ### Get Node Usage
 
 ```python
-result = await panel.get_nodes_usage(token=mytoken)
+result = await panel.get_nodes_usage()
 for node in result:
     print(node)
 # output:{'node_id': 1, 'node_name': 'N1', 'uplink': 1000000000000, 'downlink': 1000000000000}
@@ -452,6 +456,6 @@ for node in result:
 ### Get Nodes Certificate
 
 ```python
-result = await panel.get_nodes_certificate(token=mytoken)
+result = await panel.get_nodes_certificate()
 # output: string
 ```

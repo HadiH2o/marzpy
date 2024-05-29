@@ -10,5 +10,5 @@ from .user import UserMethods
 class Methods(
     AdminMethods, NodeMethods, Subscription, Core, UserMethods, TemplateMethods, System
 ):
-    def __init__(self, username: str, password: str, panel_address: str):
-        super().__init__(username, password, panel_address)
+    def __init__(self, session):
+        super().__init__(session=session)

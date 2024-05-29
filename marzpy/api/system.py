@@ -2,49 +2,39 @@ from .send_requests import send_request
 
 
 class System:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, session) -> None:
+        self.session = session
 
-    async def get_system_stats(self, token: dict):
+    async def get_system_stats(self):
         """get server stats.
-
-        Parameters:
-            token (``dict``): Authorization token
 
         Returns:
             `~dict`: server stats
         """
-        return await send_request(endpoint="system", token=token, method="get")
+        return await send_request(endpoint="system", token=self.session.token, method="get")
 
-    async def get_inbounds(self, token: dict):
+    async def get_inbounds(self):
         """get server inbounds.
-
-        Parameters:
-            token (``dict``): Authorization token
 
         Returns:
             `~dict`: server inbounds
         """
-        return await send_request(endpoint="inbounds", token=token, method="get")
+        return await send_request(endpoint="inbounds", token=self.session.token, method="get")
 
-    async def get_hosts(self, token: dict):
+    async def get_hosts(self):
         """get server hosts.
-
-        Parameters:
-            token (``dict``): Authorization token
 
         Returns:
             `~dict`: server hosts
         """
-        return await send_request(endpoint="hosts", token=token, method="get")
+        return await send_request(endpoint="hosts", token=self.session.token, method="get")
 
-    async def modify_hosts(self, token: dict, data: dict):
+    async def modify_hosts(self, data: dict):
         """get server hosts.
 
         Parameters:
-            token (``dict``): Authorization token
             data (``dict``) : new hosts data
         Returns:
             `~dict`: server hosts
         """
-        return await send_request(endpoint="hosts", token=token, method="put", data=data)
+        return await send_request(endpoint="hosts", token=self.session.token, method="put", data=data)

@@ -22,78 +22,74 @@ class Template:
 
 
 class TemplateMethods:
-    async def get_all_templates(self, token: dict):
-        """get all templates list.
+    def __init__(self, session):
+        self.session = session
 
-        Parameters:
-            token (``dict``) : Authorization token
+    async def get_all_templates(self):
+        """get all templates list.
 
         Returns:
             `~list`: list of templates
         """
-        request = await send_request(endpoint="user_template", token=token, method="get")
+        request = await send_request(endpoint="user_template", token=self.session.token, method="get")
         template_list = [Template()]
         for user in request:
             template_list.append(Template(**user))
         del template_list[0]
         return template_list
 
-    async def add_template(self, token: dict, template: Template):
+    async def add_template(self, template: Template):
         """add new template.
 
         Parameters:
-            token (``dict``) : Authorization token
             template (``api.template object``) : template
 
         Returns:
             `~object`: information of new template
         """
         request = await send_request(
-            endpoint="user_template", token=token, method="post", data=template.__dict__
+            endpoint="user_template", token=self.session.token, method="post", data=template.__dict__
         )
         return Template(**request)
 
-    async def get_template_by_id(self, token: dict, id: int):
+    async def get_template_by_id(self, template_id: int):
         """get exist template from id.
 
         Parameters:
-            token (``dict``) : Authorization token
-            id (``id``) : template id
+            template_id (``id``) : template id
         Returns:
             `~object`: information of template
         """
         request = await send_request(
-            endpoint=f"user_template/{id}", token=token, method="get"
+            endpoint=f"user_template/{template_id}", token=self.session.token, method="get"
         )
 
         return Template(**request)
 
-    async def modify_template_by_id(self, token: dict, id: int, template: Template):
+    async def modify_template_by_id(self, template_id: int, template: Template):
         """edit exist template from id.
 
         Parameters:
-            token (``dict``) : Authorization token
-            id (``id``) : template id
+            template_id (``id``) : template id
             template (``object``) template
         Returns:
             `~object`: information of edited template
         """
         request = await send_request(
-            endpoint=f"user_template/{id}",
-            token=token,
+            endpoint=f"user_template/{template_id}",
+            token=self.session.token,
             method="put",
             data=template.__dict__,
         )
         return Template(**request)
 
-    async def delete_template_by_id(self, token: dict, id: int):
+    async def delete_template_by_id(self, template_id: int):
         """delete template from id.
 
         Parameters:
-            id (``id``) : template id
-            token (``dict``) : Authorization token
+            template_id (``id``) : template id
         Returns:
             `~str`: success
         """
-        await send_request(endpoint=f"user_template/{id}", token=token, method="delete")
+        await send_request(endpoint=f"user_template/{template_id}", token=self.session.token, method="delete")
         return "success"
