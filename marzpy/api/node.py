@@ -6,11 +6,12 @@ class Node:
             self,
             name="",
             address="",
-            port=0,
-            api_port=0,
+            port=62050,
+            api_port=62051,
+            xray_version="",
+            add_as_new_host=False,
             certificate="",
             id=0,
-            xray_version="",
             status="",
             message="",
             usage_coefficient=1,
@@ -19,9 +20,10 @@ class Node:
         self.address = address
         self.port = port
         self.api_port = api_port
+        self.xray_version = xray_version
+        self.add_as_new_host = add_as_new_host
         self.certificate = certificate
         self.id = id
-        self.xray_version = xray_version
         self.status = status
         self.message = message
         self.usage_coefficient = usage_coefficient
