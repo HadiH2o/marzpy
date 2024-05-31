@@ -38,6 +38,9 @@ async def send_request(endpoint: str, token, method, data=None):
                 elif ex.status == 404:
                     raise exceptions.AdminNotFound(detail)
 
+                elif ex.status == 422:
+                    raise exceptions.AdminInvalidEntity(detail)
+
                 else:
                     raise f"Unknown error : code {ex.status} - message : {detail}"
 

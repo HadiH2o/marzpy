@@ -38,3 +38,5 @@ class Subscription:
             `~dict`: information of user
         """
         return await Subscription.subsend_request(sub_link, "info")
+
+# ToDo : fix and add possible errors on Subscription class functions.
