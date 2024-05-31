@@ -1,3 +1,5 @@
+from typing import List, Union
+
 from .send_requests import *
 
 
@@ -6,6 +8,19 @@ async def delete_if_exist(dic, keys: list):
         if key in dic:
             del dic[key]
     return dic
+
+
+class SortEnums:
+    asc_username = 'username'
+    desc_username = '-username'
+    asc_expire = 'expire'
+    desc_expire = '-expire'
+    asc_created = 'created_at'
+    desc_created = '-created_at'
+    asc_data_limit = 'data_limit'
+    desc_data_limit = '-data_limit'
+    asc_used_traffic = 'used_traffic'
+    desc_used_traffic = '-used_traffic'
 
 
 class User:
@@ -56,116 +71,168 @@ class UserMethods:
     def __init__(self, session):
         self.session = session
 
-    async def add_user(self, user: User):
+    async def add_user(self, user: User) -> User:
         """add new user.
 
-        Parameters:
-            user (``api.User``) : User Object
+        **Parameters:**
+            * `user` (User) : User Object
 
-        Returns: `~User`: api.User object
+        **Returns:**
+            (User): new user information
+
+        **Raises**:
+            * `UserInvalidEntity`: if user information is invalid
+            * `UserConflict`: if user already exists
         """
         user.status = "active"
+
         if user.on_hold_expire_duration:
             user.status = "on_hold"
-        request = await send_request(
-            endpoint="user", token=self.session.token, method="post", data=user.__dict__
-        )
+
+        request = await send_request(endpoint="user", token=self.session.token, method="post", data=user.__dict__)
         return User(**request)
 
-    async def get_user(self, user_username: str):
+    async def get_user(self, user_username: str) -> User:
         """get exist user information by username.
 
-        Parameters:
-            user_username (``str``) : username of user
+        **Parameters:**
+            * `user_username` (str) : username of user
 
-        Returns: `~User`: api.User object
+        **Returns:**
+            (User): information of user
+
+        **Raises**:
+            * `NotAuthorized` : you are not authorized to do this
+            * `UserNotFound`: if user not found
         """
         request = await send_request(f"user/{user_username}", token=self.session.token, method="get")
         return User(**request)
 
-    async def modify_user(self, user_username: str, user: object):
+    async def modify_user(self, user_username: str, user: object) -> User:
         """edit exist user by username.
 
-        Parameters:
-            user_username (``str``) : username of user
+        **Parameters:**
+            * `user_username` (str) : username of user
+            * `user` (User) : User Object
 
-            user (``api.User``) : User Object
+        **Returns:**
+            (User): information of edited user
 
-        Returns: `~User`: api.User object
+        **Raises**:
+            * `NotAuthorized` : you are not authorized to do this
+            * `UserInvalidEntity`: if user information is invalid
         """
         request = await send_request(f"user/{user_username}", self.session.token, "put", user.__dict__)
         return User(**request)
 
-    async def delete_user(self, user_username: str):
+    async def delete_user(self, user_username: str) -> str:
         """delete exist user by username.
 
-        Parameters:
-            user_username (``str``) : username of user
+        **Parameters:**
+            `user_username` (str) : username of user
 
-        Returns: `~str`: success
+        **Returns:**
+            (str): success
+
+        **Raises**:
+            * `NotAuthorized` : you are not authorized to do this
+            * `UserNotFound`: if user not found
+            * `UserInvalidEntity`: if user information is invalid
         """
         await send_request(f"user/{user_username}", self.session.token, "delete")
         return "success"
 
-    async def reset_user_traffic(self, user_username: str):
+    async def reset_user_traffic(self, user_username: str) -> str:
         """reset exist user traffic by username.
 
-        Parameters:
-            user_username (``str``) : username of user
+        **Parameters:**
+            * `user_username` (str) : username of user
 
-        Returns: `~str`: success
+        **Returns:**
+            (str): success
+
+        **Raises**:
+            * `NotAuthorized` : you are not authorized to do this
+            * `UserNotFound`: if user not found
+            * `UserConflict`: if user already exists
+            * `UserInvalidEntity`: if user information is invalid
         """
         await send_request(f"user/{user_username}/reset", self.session.token, "post")
         return "success"
 
-    async def revoke_sub(self, user_username: str):
+    async def revoke_sub(self, user_username: str) -> User:
         """Revoke users subscription (Subscription link and proxies) traffic by username.
 
-        Parameters:
-            user_username (``str``) : username of user
+        **Parameters:**
+            `user_username` (str) : username of user
 
-        Returns: `~str`: success
+        **Returns:**
+            (User): information of revoked user
+
+        **Raises**:
+            * `NotAuthorized` : you are not authorized to do this
+            * `UserNotFound`: if user not found
+            * `UserInvalidEntity`: if user information is invalid
         """
         request = await send_request(f"user/{user_username}/revoke_sub", self.session.token, "post")
         return User(**request)
 
-    async def get_all_users(self, username=None, status=None):
+    async def get_users(self, offset: int = None, limit: int = None, usernames: List[str] = None, status=None, sort: str = None) -> List[User]:
         """get all users list.
 
-        Parameters:
-            username (``str``) : username
-            status (``str``) : status
-        Returns:
-            `~list`: list of users
+        **Parameters:**
+            * `offset` (int) : offset
+            * `limit` (int) : limit
+            * `usernames` (str) : list of usernames
+            * `status` (str) : status
+            * `sort` (str) : sort (SortEnums)
+        **Returns:**
+            (List[User]): list of users
+
+        **Raises**:
+            * `UserInvalidEntity`: if user information is invalid
         """
         endpoint = "users"
-        if username:
-            endpoint += f"?username={username}"
+        if offset:
+            endpoint += f"?offset={offset}"
+
+        if limit:
+            if "?" in endpoint:
+                endpoint += f"&limit={limit}"
+            else:
+                endpoint += f"?limit={limit}"
+
+        if usernames:
+            for username in usernames:
+                if "?" in endpoint:
+                    endpoint += f"&username={username}"
+                else:
+                    endpoint += f"?username={username}"
+
         if status:
             if "?" in endpoint:
                 endpoint += f"&status={status}"
             else:
                 endpoint += f"?status={status}"
+
+        if sort:
+            if "?" in endpoint:
+                endpoint += f"&sort={sort}"
+            else:
+                endpoint += f"?sort={sort}"
+
         request = await send_request(endpoint, self.session.token, "get")
-        user_list = [
-            User(
-                username="",
-                proxies={},
-                inbounds={},
-                expire=0,
-                data_limit=0,
-                data_limit_reset_strategy="",
-            )
-        ]
-        for user in request["users"]:
-            user_list.append(User(**user))
-        del user_list[0]
+        user_list = [User(**user) for user in request["users"]]
         return user_list
 
     async def reset_all_users_traffic(self):
         """reset all users traffic.
 
-        Returns: `~str`: success
+        **Returns:**
+            (str): success
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
         """
         await send_request("users/reset", self.session.token, "post")
         return "success"
@@ -173,17 +240,78 @@ class UserMethods:
     async def get_user_usage(self, user_username: str):
         """get user usage by username.
 
-        Parameters:
-            user_username (``str``) : username of user
+        **Parameters:**
+            * `user_username` (str) : username of user
 
-        Returns: `~dict`: dict of user usage
+        **Returns:**
+            (dict): dict of user usage
+
+        **Raises**:
+            * `NotAuthorized` : you are not authorized to do this
+            * `UserNotFound`: if user not found
+            * `UserInvalidEntity`: if user information is invalid
         """
         return (await send_request(f"user/{user_username}/usage", self.session.token, "get"))["usages"]
+
+    async def get_expired_users(self, expired_before: Union[str, float] = None, expired_after: Union[str, float] = None) -> List[str]:
+        """get expired users list.
+
+        **Parameters:**
+            * `expired_before` (Union[str, float]) : expired_before specific time (timestamp or isoformat)
+            * `expired_after` (Union[str, float]) : expired_after specific time (timestamp or isoformat)
+
+        **Returns:**
+            (List[str]) : list of expired usernames
+
+        **Raises**:
+            * `UserInvalidEntity`: if time entity is invalid
+        """
+
+        endpoint = "users/expired"
+
+        if expired_before:
+            endpoint += f"?expired_before={expired_before}"
+
+        if expired_after:
+            if "?" in endpoint:
+                endpoint += f"&expired_after={expired_after}"
+            else:
+                endpoint += f"?expired_after={expired_after}"
+
+        return await send_request(endpoint, self.session.token, "get")
+
+    async def delete_expired_users(self, expired_before: Union[str, float] = None, expired_after: Union[str, float] = None) -> List[str]:
+        """delete expired users list.
+
+        **Parameters:**
+            * `expired_before` (Union[str, float]) : expired_before specific time (timestamp or isoformat)
+            * `expired_after` (Union[str, float]) : expired_after specific time (timestamp or isoformat)
+
+        **Returns:**
+            (List[str]) : list of expired usernames
+
+        **Raises**:
+            * `UserInvalidEntity`: if time entity is invalid
+        """
+
+        endpoint = "users/expired"
+
+        if expired_before:
+            endpoint += f"?expired_before={expired_before}"
+
+        if expired_after:
+            if "?" in endpoint:
+                endpoint += f"&expired_after={expired_after}"
+            else:
+                endpoint += f"?expired_after={expired_after}"
+
+        return await send_request(endpoint, self.session.token, "delete")
 
     async def get_all_users_count(self):
         """get all users count.
 
-        Returns: `~int`: count of users
+        **Returns:**
+            (int): count of users
         """
 
-        return len(await self.get_all_users(self.session.token))
+        return len(await self.get_users())

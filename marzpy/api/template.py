@@ -1,3 +1,5 @@
+from typing import List
+
 from .send_requests import *
 
 
@@ -25,11 +27,11 @@ class TemplateMethods:
     def __init__(self, session):
         self.session = session
 
-    async def get_all_templates(self):
+    async def get_all_templates(self) -> List[Template]:
         """get all templates list.
 
-        Returns:
-            `~list`: list of templates
+        **Returns:**
+            (List[Template]): list of templates
         """
         request = await send_request(endpoint="user_template", token=self.session.token, method="get")
         template_list = [Template()]
@@ -38,27 +40,26 @@ class TemplateMethods:
         del template_list[0]
         return template_list
 
-    async def add_template(self, template: Template):
+    async def add_template(self, template: Template) -> Template:
         """add new template.
 
-        Parameters:
-            template (``api.template object``) : template
+        **Parameters:**
+            * `template` (Template) : Template information
 
-        Returns:
-            `~object`: information of new template
+        **Returns:**
+            (Template) : information of new template
         """
-        request = await send_request(
-            endpoint="user_template", token=self.session.token, method="post", data=template.__dict__
-        )
+        request = await send_request(endpoint="user_template", token=self.session.token, method="post", data=template.__dict__)
         return Template(**request)
 
     async def get_template_by_id(self, template_id: int):
         """get exist template from id.
 
-        Parameters:
-            template_id (``id``) : template id
-        Returns:
-            `~object`: information of template
+        **Parameters:**
+            `template_id` (id) : template id
+
+        **Returns:**
+            (Template) : information of template
         """
         request = await send_request(
             endpoint=f"user_template/{template_id}", token=self.session.token, method="get"
@@ -69,27 +70,24 @@ class TemplateMethods:
     async def modify_template_by_id(self, template_id: int, template: Template):
         """edit exist template from id.
 
-        Parameters:
-            template_id (``id``) : template id
-            template (``object``) template
-        Returns:
-            `~object`: information of edited template
+        **Parameters:**
+            * `template_id` (id) : template id
+            * `template` (Template) : new template information
+
+        **Returns:**
+            (Template) : information of modified template
         """
-        request = await send_request(
-            endpoint=f"user_template/{template_id}",
-            token=self.session.token,
-            method="put",
-            data=template.__dict__,
-        )
+        request = await send_request(endpoint=f"user_template/{template_id}", token=self.session.token, method="put", data=template.__dict__)
         return Template(**request)
 
     async def delete_template_by_id(self, template_id: int):
         """delete template from id.
 
-        Parameters:
-            template_id (``id``) : template id
-        Returns:
-            `~str`: success
+        **Parameters:**
+            * `template_id` (id) : template id
+
+        **Returns:**
+            (str) : success
         """
         await send_request(endpoint=f"user_template/{template_id}", token=self.session.token, method="delete")
         return "success"

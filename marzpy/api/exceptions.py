@@ -10,6 +10,10 @@ class AdminNotFound(Exception):
     pass
 
 
+class AdminInvalidEntity(Exception):
+    pass
+
+
 class UserInvalidEntity(Exception):
     pass
 

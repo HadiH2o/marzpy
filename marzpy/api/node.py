@@ -1,3 +1,5 @@
+from typing import List
+
 from .send_requests import *
 
 
@@ -33,93 +35,115 @@ class NodeMethods:
     def __init__(self, session) -> None:
         self.session = session
 
-    async def add_node(self, node: Node):
+    async def add_node(self, node: Node) -> Node:
         """add new node.
 
-        Parameters:
-            node (``api.Node``): node object
+        **Parameters:**
+            * `node` (Node): node object
 
-        Returns:
-            `~object`: information of new node
+        **Returns:**
+            (Node): information of new node
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
+            * `NodeInvalidEntity` : node information is invalid
         """
-        return Node(
-            **await send_request(
-                endpoint="node", token=self.session.token, method="post", data=node.__dict__
-            )
-        )
+        response = await send_request(endpoint="node", token=self.session.token, method="post", data=node.__dict__)
+        return Node(**response)
 
-    async def get_node_by_id(self, node_id: int):
+    async def get_node(self, node_id: int) -> Node:
         """get exist node from id.
 
-        Parameters:
-            node_id (``int``): id of node
+        **Parameters:**
+            * `node_id` (int): id of node
 
-        Returns:
-            `~object`: information of new node
+        **Returns:**
+            (Node): information of node
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
+            * `NodeNotFound` : node not found
+            * `NodeInvalidEntity` : node information is invalid
         """
         return Node(**await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="get"))
 
-    async def modify_node_by_id(self, node_id: int, node: object):
+    async def modify_node(self, node_id: int, node: object) -> Node:
         """edit exist node from id.
 
-        Parameters:
-            node_id (``int``): id of node
+        **Parameters:**
+            * `node_id` (int): id of node
+            * `node` (Node): node object
 
-            node (``api.Node``): node object
+        **Returns:**
+            (Node): information of new node
 
-        Returns:
-            `~object`: information of new node
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
+            * `NodeNotFound` : node not found
+            * `NodeInvalidEntity` : node information is invalid
         """
+
         request = await send_request(
             endpoint=f"node/{node_id}", token=self.session.token, method="put", data=node.__dict__
         )
         return Node(**request)
 
-    async def delete_node(self, node_id: int):
+    async def delete_node(self, node_id: int) -> str:
         """delete node from id.
 
-        Parameters:
-            node_id (``int``): id of node
+        **Parameters:**
+            * node_id (int): id of node
 
-        Returns:
-            `~str`: success
+        **Returns:**
+            (str): success
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
+            * `NodeNotFound` : node not found
+            * `NodeInvalidEntity` : node information is invalid
         """
         await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="delete")
         return "success"
 
-    async def get_all_nodes(self):
+    async def get_nodes(self) -> List[Node]:
         """get all nodes.
 
-        Returns:
-            `~list of objects`: [Node]
+        **Returns:**
+            (List[Node]): list of nodes
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
         """
         request = await send_request(endpoint="nodes", token=self.session.token, method="get")
-        node_list = [Node()]
-        for node in request:
-            node_list.append(Node(**node))
-        del node_list[0]
+        node_list = [Node(**node) for node in request]
         return node_list
 
-    async def reconnect_node(self, node_id: int):
+    async def reconnect_node(self, node_id: int) -> str:
         """reconnect from id.
 
-        Parameters:
-            node_id (``int``): id of node
+        **Parameters:**
+            * `node_id` (int): id of node
 
-        Returns:
-            `~str`: success
+        **Returns:**
+            (str): success
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
+            * `NodeNotFound` : node not found
+            * `NodeInvalidEntity` : node information is invalid
         """
-        request = await send_request(
-            endpoint=f"node/{node_id}/reconnect", token=self.session.token, method="post"
-        )
-
+        request = await send_request(endpoint=f"node/{node_id}/reconnect", token=self.session.token, method="post")
         return "success"
 
     async def get_nodes_usage(self):
-        """get all nodes usage.
+        """get all nodes' usage.
 
-        Returns:
-            `~dict`: "usage" : []
+        **Returns:**
+            (dict): {"usage" : []}
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
+            * `NodeInvalidEntity` : node information is invalid
         """
         request = await send_request(endpoint="nodes/usage", token=self.session.token, method="get")
         return request["usages"]
@@ -128,7 +152,11 @@ class NodeMethods:
         """get nodes settings (certificate).
 
         Returns:
-            `~str`: 'certificate'
+            (str): 'certificate'
+
+        **Raises:**
+            * `NotAuthorized` : you are not authorized to do this
+
         """
 
         request = await send_request(endpoint="node/settings", token=self.session.token, method="get")
