@@ -44,7 +44,8 @@ class User:
             on_hold_expire_duration=0,
             sub_updated_at=0,
             online_at=0,
-            sub_last_user_agent: str = ""
+            sub_last_user_agent: str = "",
+            session=None
     ):
         self.username = username
         self.proxies = proxies
@@ -65,6 +66,22 @@ class User:
         self.sub_last_user_agent = sub_last_user_agent
         self.online_at = online_at
         self.sub_updated_at = sub_updated_at
+        self.methods = UserMethods(session)
+
+    async def modify(self, user: "User") -> "User":
+        return await self.methods.modify_user(self.username, user)
+
+    async def delete(self) -> str:
+        return await self.methods.delete_user(self.username)
+
+    async def reset_traffic(self) -> str:
+        return await self.methods.reset_user_traffic(self.username)
+
+    async def revoke_sub(self):
+        return await self.methods.revoke_sub(self.username)
+
+    async def get_usage(self):
+        return await self.methods.get_user_usage(self.username)
 
 
 class UserMethods:

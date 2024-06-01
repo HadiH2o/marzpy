@@ -13,6 +13,7 @@ class Template:
             username_prefix="",
             username_suffix="",
             id=None,
+            session=None
     ):
         self.name = name
         self.inbounds = inbounds
@@ -21,6 +22,13 @@ class Template:
         self.username_prefix = username_prefix
         self.username_suffix = username_suffix
         self.id = id
+        self.methods = TemplateMethods(session)
+
+    async def modify(self, template: "Template") -> "Template":
+        return await self.methods.modify_template(self.id, template)
+
+    async def delete(self) -> str:
+        return await self.methods.delete_template(self.id)
 
 
 class TemplateMethods:
@@ -34,10 +42,7 @@ class TemplateMethods:
             (List[Template]): list of templates
         """
         request = await send_request(endpoint="user_template", token=self.session.token, method="get")
-        template_list = [Template()]
-        for user in request:
-            template_list.append(Template(**user))
-        del template_list[0]
+        template_list = [Template(**user, session=self.session) for user in request]
         return template_list
 
     async def add_template(self, template: Template) -> Template:
@@ -50,9 +55,9 @@ class TemplateMethods:
             (Template) : information of new template
         """
         request = await send_request(endpoint="user_template", token=self.session.token, method="post", data=template.__dict__)
-        return Template(**request)
+        return Template(**request, session=self.session)
 
-    async def get_template_by_id(self, template_id: int):
+    async def get_template(self, template_id: int):
         """get exist template from id.
 
         **Parameters:**
@@ -65,9 +70,9 @@ class TemplateMethods:
             endpoint=f"user_template/{template_id}", token=self.session.token, method="get"
         )
 
-        return Template(**request)
+        return Template(**request, session=self.session)
 
-    async def modify_template_by_id(self, template_id: int, template: Template):
+    async def modify_template(self, template_id: int, template: Template):
         """edit exist template from id.
 
         **Parameters:**
@@ -78,9 +83,9 @@ class TemplateMethods:
             (Template) : information of modified template
         """
         request = await send_request(endpoint=f"user_template/{template_id}", token=self.session.token, method="put", data=template.__dict__)
-        return Template(**request)
+        return Template(**request, session=self.session)
 
-    async def delete_template_by_id(self, template_id: int):
+    async def delete_template(self, template_id: int):
         """delete template from id.
 
         **Parameters:**

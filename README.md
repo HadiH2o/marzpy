@@ -39,7 +39,7 @@ asyncio.run(main())
     - [create admin](#create-admin)
     - [modify admin](#modify-admin)
     - [remove admin](#remove-admin)
-    - [get all admins](#get-all-admins)
+    - [get admins](#get-admins)
 - Subscription
     - [user subscription](#user-subscription)
     - [user subscription info](#user-subscription-info)
@@ -57,11 +57,13 @@ asyncio.run(main())
     - [add user](#add-user)
     - [get user](#get-user)
     - [modify user](#modify-user)
-    - [remove user](#remove-user)
+    - [delete user](#delete-user)
     - [reset user data usage](#reset-user-data-usage)
     - [reset all users data usage](#reset-all-users-data-usage)
-    - [get all users](#get-all-users)
+    - [get users](#get-users)
     - [get user usage](#get-user-usage)
+    - [get_expired_users](#get-expired-users)
+    - [delete_expired_users](#delete-expired-users)
 - User Template
     - [get all user templates](#get-all-user-templates)
     - [add user template](#add-user-template)
@@ -73,8 +75,8 @@ asyncio.run(main())
     - [get node](#get-node)
     - [modify node](#modify-node)
     - [remove node](#remove-node)
-    - [get all nodes](#get-all-nodes)
-    - [reconenct node](#reconenct-node)
+    - [get nodes](#get-nodes)
+    - [reconnect node](#reconnect-node)
     - [get all nodes usage](#get-node-usage)
     - [get nodes certificate](#get-nodes-certificate)
 
@@ -131,10 +133,10 @@ result = await panel.delete_admin(username=target_admin)
 print(result)  # output: success
 ```
 
-### Get All Admins
+### Get Admins
 
 ```python
-result = await panel.get_all_admins()
+result = await panel.get_admins()
 print(result)
 # output: [{'username': 'test', 'is_sudo': True}, {'username': 'test1', 'is_sudo': False}]
 ```
@@ -277,7 +279,7 @@ result = await panel.modify_user(user_username="Mewhrzad", user=new_user)
 print(result.subscription_url)  # output: modified user object
 ```
 
-### Remove User
+### Delete User
 
 ```python
 result = await panel.delete_user(user_username="test")
@@ -298,10 +300,10 @@ result = await panel.reset_all_users_traffic()
 print(result)  # output: success
 ```
 
-### Get All Users
+### Get Users
 
 ```python
-result = await panel.get_all_users()  # return list of users
+result = await panel.get_users()  # return list of users
 for user in result:
     print(user.username) 
 ```
@@ -315,10 +317,24 @@ print(result)
 # {'node_id': 1, 'node_name': 'MCI', 'used_traffic': 0}]
 ```
 
+### Get Expired Users
+
+```python
+result = await panel.get_expired_users()
+print(result)
+```
+
+### Delete Expired Users
+
+```python
+result = await panel.delete_expired_users()
+print(result)
+```
+
 ### Get All User Templates
 
 ```python
-result = await panel.get_all_templates()  # return template list object
+result = await panel.get_templates()  # return template list object
 for template in result:
     print(template.name)
 ```
@@ -344,7 +360,7 @@ print(result.name)  # output: new_template
 
 ```python
 template_id = 11
-result = await panel.get_template_by_id(template_id=template_id)  # return Template object
+result = await panel.get_template(template_id=template_id)  # return Template object
 print(result.name)  # output: new_template
 ```
 
@@ -361,14 +377,14 @@ temp = Template(
     username_prefix=None,
     username_suffix=None,
 )
-result = await panel.modify_template_by_id(template_id=1, template=temp)  # return Modified Template object
+result = await panel.modify_template(template_id=1, template=temp)  # return Modified Template object
 print(result.name)  # output: new_template2
 ```
 
 ### Remove User Template
 
 ```python
-result = await panel.delete_template_by_id(template_id=1)
+result = await panel.delete_template(template_id=1)
 print(result)  # output: success
 ```
 
@@ -396,7 +412,7 @@ print(result.address)
 ### Get Node
 
 ```python
-result = await panel.get_node_by_id(node_id=1)  # return exist Node object
+result = await panel.get_node(node_id=1)  # return exist Node object
 print(result.address)  # output: address of node 1
 ```
 
@@ -417,7 +433,7 @@ my_node = Node(
     message="string",
 )
 
-result = await panel.modify_node_by_id(node_id=1, node=my_node)  # return modified Node object
+result = await panel.modify_node(node_id=1, node=my_node)  # return modified Node object
 print(result.address)  # output:test.example.com
 ```
 
@@ -428,15 +444,15 @@ result = await panel.delete_node(node_id=1)
 print(result)  # output: success
 ```
 
-### Get All Nodes
+### Get Nodes
 
 ```python
-result = await panel.get_all_nodes()  # return List of Node object
+result = await panel.get_nodes()  # return List of Node object
 for node in result:
     print(node.address)
 ```
 
-### Reconenct Node
+### Reconnect Node
 
 ```python
 result = await panel.reconnect_node(node_id=1)
