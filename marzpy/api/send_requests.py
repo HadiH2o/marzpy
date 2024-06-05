@@ -6,7 +6,7 @@ from aiohttp import ClientResponseError
 from marzpy.api import exceptions
 
 
-async def send_request(endpoint: str, token, method, data=None):
+async def send_request(endpoint: str, token, method, data: dict = None):
     try:
         panel_address = token["panel_address"]
         token_type = token["token_type"]
@@ -17,6 +17,10 @@ async def send_request(endpoint: str, token, method, data=None):
             "Content-Type": "application/json",
             "Authorization": f"{token_type} {access_token}",
         }
+
+        if data:
+            data.pop('methods', False)
+
         async with aiohttp.request(
                 method=method,
                 url=request_address,
