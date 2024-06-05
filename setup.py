@@ -5,7 +5,7 @@ with open("README.md", "r") as file:
 
 setup(
     name="marzpy",
-    version="0.0.9",
+    version="0.1.0",
     author="Mewhrzad",
     description="a simple application with python to manage Marzban panel",
     long_description="text/markdown",
