@@ -21,9 +21,13 @@ class Session:
                 data={"username": self.username, "password": self.password},
         ) as response:
             result = await response.json()
-            result["panel_address"] = self.panel_address
-            self.token = result
-            return result
+            if result.get('detail') == 'Incorrect username or password':
+                raise "Incorrect username or password"
+
+            else:
+                result["panel_address"] = self.panel_address
+                self.token = result
+                return result
 
 
 class Marzban(Methods):
