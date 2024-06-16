@@ -19,10 +19,8 @@ async def send_request(endpoint: str, token, method, data: dict = None):
         }
 
         if data:
-            print(data)
             data.pop('methods', False)
-            print(data)
-
+            
         async with aiohttp.request(
                 method=method,
                 url=request_address,

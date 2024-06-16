@@ -10,7 +10,7 @@ class Session:
         self.password = password
         self.panel_address = panel_address
 
-    async def start_session(self):
+    async def start(self):
         """login for Authorization token
 
         Returns: `~dict`: Authorization token
