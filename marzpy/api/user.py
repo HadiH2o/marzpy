@@ -68,7 +68,10 @@ class User:
         self.sub_updated_at = sub_updated_at
         self.methods = UserMethods(session)
 
-    async def modify(self, user: "User") -> "User":
+    async def modify(self, user: "User", new_username: str = False) -> "User":
+        if new_username:
+            user.username = new_username
+
         return await self.methods.modify_user(self.username, user)
 
     async def delete(self) -> str:
