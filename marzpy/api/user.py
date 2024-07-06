@@ -45,7 +45,7 @@ class User:
             sub_updated_at=0,
             online_at=0,
             sub_last_user_agent: str = "",
-            session=None
+            methods=None
     ):
         self.username = username
         self.proxies = proxies
@@ -66,7 +66,7 @@ class User:
         self.sub_last_user_agent = sub_last_user_agent
         self.online_at = online_at
         self.sub_updated_at = sub_updated_at
-        self.methods = UserMethods(session)
+        self.methods = methods
 
     async def modify(self, user: "User") -> "User":
         return await self.methods.modify_user(self.username, user)
@@ -107,7 +107,7 @@ class UserMethods:
             user.status = "on_hold"
 
         request = await send_request(endpoint="user", token=self.session.token, method="post", data=user.__dict__)
-        return User(**request, session=self.session)
+        return User(**request, methods=UserMethods(self.session))
 
     async def get_user(self, user_username: str) -> User:
         """get exist user information by username.
@@ -123,7 +123,7 @@ class UserMethods:
             * `UserNotFound`: if user not found
         """
         request = await send_request(f"user/{user_username}", token=self.session.token, method="get")
-        return User(**request, session=self.session)
+        return User(**request, methods=UserMethods(self.session))
 
     async def modify_user(self, user_username: str, user: object) -> User:
         """edit exist user by username.
@@ -140,7 +140,7 @@ class UserMethods:
             * `UserInvalidEntity`: if user information is invalid
         """
         request = await send_request(f"user/{user_username}", self.session.token, "put", user.__dict__)
-        return User(**request, session=self.session)
+        return User(**request, methods=UserMethods(self.session))
 
     async def delete_user(self, user_username: str) -> str:
         """delete exist user by username.
@@ -192,7 +192,7 @@ class UserMethods:
             * `UserInvalidEntity`: if user information is invalid
         """
         request = await send_request(f"user/{user_username}/revoke_sub", self.session.token, "post")
-        return User(**request, session=self.session)
+        return User(**request, methods=UserMethods(self.session))
 
     async def get_users(self, offset: int = None, limit: int = None, usernames: List[str] = None, status=None, sort: str = None) -> List[User]:
         """get all users list.
@@ -239,7 +239,7 @@ class UserMethods:
                 endpoint += f"?sort={sort}"
 
         request = await send_request(endpoint, self.session.token, "get")
-        user_list = [User(**user, session=self.session) for user in request["users"]]
+        user_list = [User(**user, methods=UserMethods(self.session)) for user in request["users"]]
         return user_list
 
     async def reset_all_users_traffic(self):

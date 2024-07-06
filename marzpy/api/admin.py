@@ -4,13 +4,13 @@ from .send_requests import *
 
 
 class Admin:
-    def __init__(self, username: str, is_sudo: bool, password: str = None, telegram_id: int = None, discord_webhook: str = None, session=None):
+    def __init__(self, username: str, is_sudo: bool, password: str = None, telegram_id: int = None, discord_webhook: str = None, methods=None):
         self.username = username
         self.is_sudo = is_sudo
         self.password = password
         self.telegram_id = telegram_id
         self.discord_webhook = discord_webhook
-        self.methods = AdminMethods(session)
+        self.methods = methods
 
     async def modify(self, admin: "Admin") -> "Admin":
         return await self.methods.modify_admin(self.username, admin)
@@ -60,7 +60,7 @@ class AdminMethods:
             (Admin): information of current admin
         """
         response = await send_request(endpoint="admin", token=self.session.token, method="get")
-        return Admin(**response, session=self.session)
+        return Admin(**response, methods=AdminMethods(self.session))
 
     async def create_admin(self, admin: Admin) -> Admin:
         """add new admin.
@@ -77,7 +77,7 @@ class AdminMethods:
             * `AdminInvalidEntity` : admin information is invalid
         """
         response = await send_request(endpoint="admin", token=self.session.token, method="post", data=admin.__dict__)
-        return Admin(**response, session=self.session)
+        return Admin(**response, methods=AdminMethods(self.session))
 
     async def modify_admin(self, username: str, admin: Admin) -> Admin:
         """change exist admins password.
@@ -99,7 +99,7 @@ class AdminMethods:
         admin_dict = admin.__dict__
         admin_dict.pop('username')
         response = await send_request(endpoint=f"admin/{username}", token=self.session.token, method="put", data=admin_dict)
-        return Admin(**response, session=self.session)
+        return Admin(**response, methods=AdminMethods(self.session))
 
     async def delete_admin(self, username: str) -> str:
         """delete admin.
@@ -129,5 +129,5 @@ class AdminMethods:
             * `AdminInvalidEntity` : admin information is invalid
         """
         response = await send_request(endpoint=f"admins", token=self.session.token, method="get")
-        result = [Admin(**admin, session=self.session) for admin in response]
+        result = [Admin(**admin, methods=AdminMethods(self.session)) for admin in response]
         return result

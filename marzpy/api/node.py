@@ -17,7 +17,7 @@ class Node:
             status="",
             message="",
             usage_coefficient=1,
-            session=None
+            methods=None
     ):
         self.name = name
         self.address = address
@@ -30,7 +30,7 @@ class Node:
         self.status = status
         self.message = message
         self.usage_coefficient = usage_coefficient
-        self.methods = NodeMethods(session)
+        self.methods = methods
 
     async def modify(self, node: "Node") -> "Node":
         return await self.methods.modify_node(self.id, node)
@@ -60,7 +60,7 @@ class NodeMethods:
             * `NodeInvalidEntity` : node information is invalid
         """
         response = await send_request(endpoint="node", token=self.session.token, method="post", data=node.__dict__)
-        return Node(**response, session=self.session)
+        return Node(**response, methods=NodeMethods(self.session))
 
     async def get_node(self, node_id: int) -> Node:
         """get exist node from id.
@@ -77,7 +77,7 @@ class NodeMethods:
             * `NodeInvalidEntity` : node information is invalid
         """
         response = await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="get")
-        return Node(**response, session=self.session)
+        return Node(**response, methods=NodeMethods(self.session))
 
     async def modify_node(self, node_id: int, node: object) -> Node:
         """edit exist node from id.
@@ -95,7 +95,7 @@ class NodeMethods:
             * `NodeInvalidEntity` : node information is invalid
         """
         request = await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="put", data=node.__dict__)
-        return Node(**request, session=self.session)
+        return Node(**request, methods=NodeMethods(self.session))
 
     async def delete_node(self, node_id: int) -> str:
         """delete node from id.
@@ -124,7 +124,7 @@ class NodeMethods:
             * `NotAuthorized` : you are not authorized to do this
         """
         request = await send_request(endpoint="nodes", token=self.session.token, method="get")
-        node_list = [Node(**node, session=self.session) for node in request]
+        node_list = [Node(**node, methods=NodeMethods(self.session)) for node in request]
         return node_list
 
     async def reconnect_node(self, node_id: int) -> str:
