@@ -72,7 +72,10 @@ async def send_request(endpoint: str, token, method, data: dict = None):
 
                 elif ex.status == 404:
                     raise exceptions.UserNotFound(detail)
-
+                else:
+                    error = f"Unknown error : code {ex.status} - message : {detail}"
+                    raise error
+                    
             elif endpoint.startswith("node"):
                 if ex.status == 422:
                     if 'usage_coefficient' in detail.keys():
@@ -87,7 +90,10 @@ async def send_request(endpoint: str, token, method, data: dict = None):
 
                 elif ex.status == 404:
                     raise exceptions.NodeNotFound(detail)
-
+                    
+                else:
+                    error = f"Unknown error : code {ex.status} - message : {detail}"
+                    raise error
             else:
                 raise exceptions.NotAuthorized("You are not allowed to do this operation")
 
