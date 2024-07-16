@@ -20,6 +20,7 @@ async def send_request(endpoint: str, token, method, data: dict = None):
 
         if data:
             data.pop('methods', False)
+            data.pop('admin', None)
 
         async with aiohttp.request(
                 method=method,
