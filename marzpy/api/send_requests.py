@@ -20,7 +20,7 @@ async def send_request(endpoint: str, token, method, data: dict = None):
 
         if data:
             data.pop('methods', False)
-            
+
         async with aiohttp.request(
                 method=method,
                 url=request_address,
@@ -46,7 +46,7 @@ async def send_request(endpoint: str, token, method, data: dict = None):
                     raise exceptions.AdminInvalidEntity(detail)
 
                 else:
-                    raise f"Unknown error : code {ex.status} - message : {detail}"
+                    raise Exception(f"Unknown error : code {ex.status} - message : {detail}")
 
             elif endpoint.startswith('user_template'):
                 raise exceptions.UserNotFound(f"Unknown error : code {ex.status} - message : {detail}")
@@ -63,7 +63,7 @@ async def send_request(endpoint: str, token, method, data: dict = None):
                         error = detail['status']
 
                     else:
-                        error = f"Unknown error : code {ex.status} - message : {detail}"
+                        error = Exception(f"Unknown error : code {ex.status} - message : {detail}")
 
                     raise exceptions.UserInvalidEntity(error)
 
@@ -73,9 +73,8 @@ async def send_request(endpoint: str, token, method, data: dict = None):
                 elif ex.status == 404:
                     raise exceptions.UserNotFound(detail)
                 else:
-                    error = f"Unknown error : code {ex.status} - message : {detail}"
-                    raise error
-                    
+                    raise Exception(f"Unknown error : code {ex.status} - message : {detail}")
+
             elif endpoint.startswith("node"):
                 if ex.status == 422:
                     if 'usage_coefficient' in detail.keys():
@@ -90,10 +89,9 @@ async def send_request(endpoint: str, token, method, data: dict = None):
 
                 elif ex.status == 404:
                     raise exceptions.NodeNotFound(detail)
-                    
+
                 else:
-                    error = f"Unknown error : code {ex.status} - message : {detail}"
-                    raise error
+                    raise Exception(f"Unknown error : code {ex.status} - message : {detail}")
             else:
                 raise exceptions.NotAuthorized("You are not allowed to do this operation")
 
