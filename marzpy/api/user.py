@@ -199,13 +199,19 @@ class UserMethods:
         request = await send_request(f"user/{user_username}/revoke_sub", session=self.session, method="post")
         return User(**request, methods=UserMethods(self.session))
 
-    async def get_users(self, offset: int = None, limit: int = None, usernames: List[str] = None, status=None, sort: str = None) -> List[User]:
+    async def get_users(
+            self,
+            offset: int = None, limit: int = None,
+            usernames: List[str] = None, search: str = None,
+            status=None, sort: str = None
+    ) -> List[User]:
         """get all users list.
 
         **Parameters:**
             * `offset` (int) : offset
             * `limit` (int) : limit
-            * `usernames` (str) : list of usernames
+            * `usernames` (list) : list of usernames
+            * `search` (str) : list of usernames
             * `status` (str) : status
             * `sort` (str) : sort (SortEnums)
         **Returns:**
@@ -230,6 +236,12 @@ class UserMethods:
                     endpoint += f"&username={username}"
                 else:
                     endpoint += f"?username={username}"
+
+        if search:
+            if "?" in endpoint:
+                endpoint += f"&search={status}"
+            else:
+                endpoint += f"?search={status}"
 
         if status:
             if "?" in endpoint:
