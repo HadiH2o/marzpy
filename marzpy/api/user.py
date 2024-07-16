@@ -239,9 +239,9 @@ class UserMethods:
 
         if search:
             if "?" in endpoint:
-                endpoint += f"&search={status}"
+                endpoint += f"&search={search}"
             else:
-                endpoint += f"?search={status}"
+                endpoint += f"?search={search}"
 
         if status:
             if "?" in endpoint:
