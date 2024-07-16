@@ -1,5 +1,6 @@
 from typing import List, Union
 
+from .admin import Admin
 from .send_requests import *
 
 
@@ -45,6 +46,8 @@ class User:
             sub_updated_at=0,
             online_at=0,
             sub_last_user_agent: str = "",
+            auto_delete_in_days: int = None,
+            admin: dict = None,
             methods=None
     ):
         self.username = username
@@ -66,6 +69,8 @@ class User:
         self.sub_last_user_agent = sub_last_user_agent
         self.online_at = online_at
         self.sub_updated_at = sub_updated_at
+        self.auto_delete_in_days = auto_delete_in_days
+        self.admin = Admin(**admin)
         self.methods = methods
 
     async def modify(self, user: "User") -> "User":
