@@ -144,7 +144,7 @@ class UserMethods:
             * `NotAuthorized` : you are not authorized to do this
             * `UserInvalidEntity`: if user information is invalid
         """
-        request = await send_request(f"user/{user_username}", self.session.token, "put", user.__dict__)
+        request = await send_request(f"user/{user_username}", self.session, "put", user.__dict__)
         return User(**request, methods=UserMethods(self.session))
 
     async def delete_user(self, user_username: str) -> str:
@@ -161,7 +161,7 @@ class UserMethods:
             * `UserNotFound`: if user not found
             * `UserInvalidEntity`: if user information is invalid
         """
-        await send_request(f"user/{user_username}", self.session.token, "delete")
+        await send_request(f"user/{user_username}", session=self.session, method="delete")
         return "success"
 
     async def reset_user_traffic(self, user_username: str) -> str:
@@ -179,7 +179,7 @@ class UserMethods:
             * `UserConflict`: if user already exists
             * `UserInvalidEntity`: if user information is invalid
         """
-        await send_request(f"user/{user_username}/reset", self.session.token, "post")
+        await send_request(f"user/{user_username}/reset", session=self.session, method="post")
         return "success"
 
     async def revoke_sub(self, user_username: str) -> User:
@@ -196,7 +196,7 @@ class UserMethods:
             * `UserNotFound`: if user not found
             * `UserInvalidEntity`: if user information is invalid
         """
-        request = await send_request(f"user/{user_username}/revoke_sub", self.session.token, "post")
+        request = await send_request(f"user/{user_username}/revoke_sub", session=self.session, method="post")
         return User(**request, methods=UserMethods(self.session))
 
     async def get_users(self, offset: int = None, limit: int = None, usernames: List[str] = None, status=None, sort: str = None) -> List[User]:
@@ -243,7 +243,7 @@ class UserMethods:
             else:
                 endpoint += f"?sort={sort}"
 
-        request = await send_request(endpoint, self.session.token, "get")
+        request = await send_request(endpoint, session=self.session, method="get")
         user_list = [User(**user, methods=UserMethods(self.session)) for user in request["users"]]
         return user_list
 
@@ -256,7 +256,7 @@ class UserMethods:
         **Raises:**
             * `NotAuthorized` : you are not authorized to do this
         """
-        await send_request("users/reset", self.session.token, "post")
+        await send_request("users/reset", session=self.session, method="post")
         return "success"
 
     async def get_user_usage(self, user_username: str):
@@ -273,7 +273,7 @@ class UserMethods:
             * `UserNotFound`: if user not found
             * `UserInvalidEntity`: if user information is invalid
         """
-        return (await send_request(f"user/{user_username}/usage", self.session.token, "get"))["usages"]
+        return (await send_request(f"user/{user_username}/usage", session=self.session, method="get"))["usages"]
 
     async def get_expired_users(self, expired_before: Union[str, float] = None, expired_after: Union[str, float] = None) -> List[str]:
         """get expired users list.
@@ -300,7 +300,7 @@ class UserMethods:
             else:
                 endpoint += f"?expired_after={expired_after}"
 
-        return await send_request(endpoint, self.session.token, "get")
+        return await send_request(endpoint, session=self.session, method="get")
 
     async def delete_expired_users(self, expired_before: Union[str, float] = None, expired_after: Union[str, float] = None) -> List[str]:
         """delete expired users list.
@@ -327,7 +327,7 @@ class UserMethods:
             else:
                 endpoint += f"?expired_after={expired_after}"
 
-        return await send_request(endpoint, self.session.token, "delete")
+        return await send_request(endpoint, session=self.session, method="delete")
 
     async def get_all_users_count(self):
         """get all users count.
