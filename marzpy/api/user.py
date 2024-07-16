@@ -70,7 +70,7 @@ class User:
         self.online_at = online_at
         self.sub_updated_at = sub_updated_at
         self.auto_delete_in_days = auto_delete_in_days
-        self.admin = Admin(**admin)
+        self.admin = Admin(**admin) if admin else None
         self.methods = methods
 
     async def modify(self, user: "User") -> "User":
