@@ -11,14 +11,14 @@ class Core:
         **Returns:**
             (dict): xray core
         """
-        return await send_request(endpoint="core", token=self.session.token, method="get")
+        return await send_request(endpoint="core", session=self.session, method="get")
 
     async def restart_xray_core(self):
         """restart xray core.
         **Returns:**
             (str): success
         """
-        await send_request(endpoint="core/restart", token=self.session.token, method="post")
+        await send_request(endpoint="core/restart", session=self.session, method="post")
         return "success"
 
     async def get_xray_config(self):
@@ -27,7 +27,7 @@ class Core:
         **Returns:**
             (dict): xray config
         """
-        return await send_request(endpoint="core/config", token=self.session.token, method="get")
+        return await send_request(endpoint="core/config", session=self.session, method="get")
 
     async def modify_xray_config(self, config: json):
         """edit xray config.
@@ -38,7 +38,7 @@ class Core:
         **Returns:**
             (str): success
         """
-        await send_request(endpoint="core/config", token=self.session.token, method="put", data=config)
+        await send_request(endpoint="core/config", session=self.session, method="put", data=config)
         return "success"
 
 

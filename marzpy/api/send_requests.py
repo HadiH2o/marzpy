@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import aiohttp
@@ -6,8 +7,14 @@ from aiohttp import ClientResponseError
 from marzpy.api import exceptions
 
 
-async def send_request(endpoint: str, token, method, data: dict = None):
+async def send_request(endpoint: str, session, method, data: dict = None):
     try:
+        now = datetime.datetime.now()
+
+        if now > session.expire:
+            await session.start()
+
+        token = session.token
         panel_address = token["panel_address"]
         token_type = token["token_type"]
         access_token = token["access_token"]

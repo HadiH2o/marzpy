@@ -59,7 +59,7 @@ class NodeMethods:
             * `NotAuthorized` : you are not authorized to do this
             * `NodeInvalidEntity` : node information is invalid
         """
-        response = await send_request(endpoint="node", token=self.session.token, method="post", data=node.__dict__)
+        response = await send_request(endpoint="node", session=self.session, method="post", data=node.__dict__)
         return Node(**response, methods=NodeMethods(self.session))
 
     async def get_node(self, node_id: int) -> Node:
@@ -76,7 +76,7 @@ class NodeMethods:
             * `NodeNotFound` : node not found
             * `NodeInvalidEntity` : node information is invalid
         """
-        response = await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="get")
+        response = await send_request(endpoint=f"node/{node_id}", session=self.session, method="get")
         return Node(**response, methods=NodeMethods(self.session))
 
     async def modify_node(self, node_id: int, node: object) -> Node:
@@ -94,7 +94,7 @@ class NodeMethods:
             * `NodeNotFound` : node not found
             * `NodeInvalidEntity` : node information is invalid
         """
-        request = await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="put", data=node.__dict__)
+        request = await send_request(endpoint=f"node/{node_id}", session=self.session, method="put", data=node.__dict__)
         return Node(**request, methods=NodeMethods(self.session))
 
     async def delete_node(self, node_id: int) -> str:
@@ -111,7 +111,7 @@ class NodeMethods:
             * `NodeNotFound` : node not found
             * `NodeInvalidEntity` : node information is invalid
         """
-        await send_request(endpoint=f"node/{node_id}", token=self.session.token, method="delete")
+        await send_request(endpoint=f"node/{node_id}", session=self.session, method="delete")
         return "success"
 
     async def get_nodes(self) -> List[Node]:
@@ -123,7 +123,7 @@ class NodeMethods:
         **Raises:**
             * `NotAuthorized` : you are not authorized to do this
         """
-        request = await send_request(endpoint="nodes", token=self.session.token, method="get")
+        request = await send_request(endpoint="nodes", session=self.session, method="get")
         node_list = [Node(**node, methods=NodeMethods(self.session)) for node in request]
         return node_list
 
@@ -141,7 +141,7 @@ class NodeMethods:
             * `NodeNotFound` : node not found
             * `NodeInvalidEntity` : node information is invalid
         """
-        request = await send_request(endpoint=f"node/{node_id}/reconnect", token=self.session.token, method="post")
+        request = await send_request(endpoint=f"node/{node_id}/reconnect", session=self.session, method="post")
         return "success"
 
     async def get_nodes_usage(self):
@@ -154,7 +154,7 @@ class NodeMethods:
             * `NotAuthorized` : you are not authorized to do this
             * `NodeInvalidEntity` : node information is invalid
         """
-        request = await send_request(endpoint="nodes/usage", token=self.session.token, method="get")
+        request = await send_request(endpoint="nodes/usage", session=self.session, method="get")
         return request["usages"]
 
     async def get_nodes_certificate(self):
@@ -167,5 +167,5 @@ class NodeMethods:
             * `NotAuthorized` : you are not authorized to do this
 
         """
-        request = await send_request(endpoint="node/settings", token=self.session.token, method="get")
+        request = await send_request(endpoint="node/settings", session=self.session, method="get")
         return request["certificate"]

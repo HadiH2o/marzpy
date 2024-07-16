@@ -59,7 +59,7 @@ class AdminMethods:
         **Returns:**
             (Admin): information of current admin
         """
-        response = await send_request(endpoint="admin", token=self.session.token, method="get")
+        response = await send_request(endpoint="admin", session=self.session, method="get")
         return Admin(**response, methods=AdminMethods(self.session))
 
     async def create_admin(self, admin: Admin) -> Admin:
@@ -76,7 +76,7 @@ class AdminMethods:
             * `AdminAlreadyExists` : admin already exists
             * `AdminInvalidEntity` : admin information is invalid
         """
-        response = await send_request(endpoint="admin", token=self.session.token, method="post", data=admin.__dict__)
+        response = await send_request(endpoint="admin", session=self.session, method="post", data=admin.__dict__)
         return Admin(**response, methods=AdminMethods(self.session))
 
     async def modify_admin(self, username: str, admin: Admin) -> Admin:
@@ -98,7 +98,7 @@ class AdminMethods:
         """
         admin_dict = admin.__dict__
         admin_dict.pop('username')
-        response = await send_request(endpoint=f"admin/{username}", token=self.session.token, method="put", data=admin_dict)
+        response = await send_request(endpoint=f"admin/{username}", session=self.session, method="put", data=admin_dict)
         return Admin(**response, methods=AdminMethods(self.session))
 
     async def delete_admin(self, username: str) -> str:
@@ -115,7 +115,7 @@ class AdminMethods:
             * `AdminNotFound` : admin not found
             * `AdminInvalidEntity` : admin information is invalid
         """
-        await send_request(endpoint=f"admin/{username}", token=self.session.token, method="delete")
+        await send_request(endpoint=f"admin/{username}", session=self.session, method="delete")
         return "success"
 
     async def get_admins(self) -> List[Admin]:
@@ -128,6 +128,6 @@ class AdminMethods:
             * `NotAuthorized` : you are not authorized to do this
             * `AdminInvalidEntity` : admin information is invalid
         """
-        response = await send_request(endpoint=f"admins", token=self.session.token, method="get")
+        response = await send_request(endpoint=f"admins", session=self.session, method="get")
         result = [Admin(**admin, methods=AdminMethods(self.session)) for admin in response]
         return result

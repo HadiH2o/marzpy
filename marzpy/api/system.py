@@ -11,7 +11,7 @@ class System:
         **Returns:**
             (dict) : server stats
         """
-        return await send_request(endpoint="system", token=self.session.token, method="get")
+        return await send_request(endpoint="system", session=self.session, method="get")
 
     async def get_inbounds(self) -> dict:
         """get server inbounds.
@@ -19,7 +19,7 @@ class System:
         **Returns:**
             (dict) : server inbounds
         """
-        return await send_request(endpoint="inbounds", token=self.session.token, method="get")
+        return await send_request(endpoint="inbounds", session=self.session, method="get")
 
     async def get_hosts(self) -> dict:
         """get server hosts.
@@ -27,7 +27,7 @@ class System:
         **Returns:**
             (dict) : server hosts
         """
-        return await send_request(endpoint="hosts", token=self.session.token, method="get")
+        return await send_request(endpoint="hosts", session=self.session, method="get")
 
     async def modify_hosts(self, data: dict) -> dict:
         """get server hosts.
@@ -37,7 +37,7 @@ class System:
         **Returns:**
             (dict) : server hosts
         """
-        return await send_request(endpoint="hosts", token=self.session.token, method="put", data=data)
+        return await send_request(endpoint="hosts", session=self.session, method="put", data=data)
 
 
 # ToDo : add possible errors on System class functions.

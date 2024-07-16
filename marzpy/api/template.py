@@ -41,7 +41,7 @@ class TemplateMethods:
         **Returns:**
             (List[Template]): list of templates
         """
-        request = await send_request(endpoint="user_template", token=self.session.token, method="get")
+        request = await send_request(endpoint="user_template", session=self.session, method="get")
         template_list = [Template(**user, methods=TemplateMethods(self.session)) for user in request]
         return template_list
 
@@ -54,7 +54,7 @@ class TemplateMethods:
         **Returns:**
             (Template) : information of new template
         """
-        request = await send_request(endpoint="user_template", token=self.session.token, method="post", data=template.__dict__)
+        request = await send_request(endpoint="user_template", session=self.session, method="post", data=template.__dict__)
         return Template(**request, methods=TemplateMethods(self.session))
 
     async def get_template(self, template_id: int):
@@ -67,7 +67,7 @@ class TemplateMethods:
             (Template) : information of template
         """
         request = await send_request(
-            endpoint=f"user_template/{template_id}", token=self.session.token, method="get"
+            endpoint=f"user_template/{template_id}", session=self.session, method="get"
         )
 
         return Template(**request, methods=TemplateMethods(self.session))
@@ -82,7 +82,7 @@ class TemplateMethods:
         **Returns:**
             (Template) : information of modified template
         """
-        request = await send_request(endpoint=f"user_template/{template_id}", token=self.session.token, method="put", data=template.__dict__)
+        request = await send_request(endpoint=f"user_template/{template_id}", session=self.session, method="put", data=template.__dict__)
         return Template(**request, methods=TemplateMethods(self.session))
 
     async def delete_template(self, template_id: int):
@@ -94,5 +94,5 @@ class TemplateMethods:
         **Returns:**
             (str) : success
         """
-        await send_request(endpoint=f"user_template/{template_id}", token=self.session.token, method="delete")
+        await send_request(endpoint=f"user_template/{template_id}", session=self.session, method="delete")
         return "success"

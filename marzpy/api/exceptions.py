@@ -1,3 +1,7 @@
+class IncorrectCredentials(Exception):
+    pass
+
+
 class NotAuthorized(Exception):
     pass
 

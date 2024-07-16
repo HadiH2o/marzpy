@@ -111,7 +111,7 @@ class UserMethods:
         if user.on_hold_expire_duration:
             user.status = "on_hold"
 
-        request = await send_request(endpoint="user", token=self.session.token, method="post", data=user.__dict__)
+        request = await send_request(endpoint="user", session=self.session, method="post", data=user.__dict__)
         return User(**request, methods=UserMethods(self.session))
 
     async def get_user(self, user_username: str) -> User:
@@ -127,7 +127,7 @@ class UserMethods:
             * `NotAuthorized` : you are not authorized to do this
             * `UserNotFound`: if user not found
         """
-        request = await send_request(f"user/{user_username}", token=self.session.token, method="get")
+        request = await send_request(f"user/{user_username}", session=self.session, method="get")
         return User(**request, methods=UserMethods(self.session))
 
     async def modify_user(self, user_username: str, user: object) -> User:
